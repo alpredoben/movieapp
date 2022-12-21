@@ -30,6 +30,7 @@ type MovieClient interface {
 	DeleteDirector(ctx context.Context, in *DirectorId, opts ...grpc.CallOption) (*Status, error)
 	// User Method
 	GetUsers(ctx context.Context, in *Empty, opts ...grpc.CallOption) (Movie_GetUsersClient, error)
+	CreateUser(ctx context.Context, opts ...grpc.CallOption) (Movie_CreateUserClient, error)
 }
 
 type movieClient struct {
@@ -140,6 +141,40 @@ func (x *movieGetUsersClient) Recv() (*User, error) {
 	return m, nil
 }
 
+func (c *movieClient) CreateUser(ctx context.Context, opts ...grpc.CallOption) (Movie_CreateUserClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Movie_ServiceDesc.Streams[2], "/movieapp.Movie/CreateUser", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &movieCreateUserClient{stream}
+	return x, nil
+}
+
+type Movie_CreateUserClient interface {
+	Send(*CreateUserRequest) error
+	CloseAndRecv() (*TotalUserResponse, error)
+	grpc.ClientStream
+}
+
+type movieCreateUserClient struct {
+	grpc.ClientStream
+}
+
+func (x *movieCreateUserClient) Send(m *CreateUserRequest) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *movieCreateUserClient) CloseAndRecv() (*TotalUserResponse, error) {
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	m := new(TotalUserResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // MovieServer is the server API for Movie service.
 // All implementations must embed UnimplementedMovieServer
 // for forward compatibility
@@ -152,6 +187,7 @@ type MovieServer interface {
 	DeleteDirector(context.Context, *DirectorId) (*Status, error)
 	// User Method
 	GetUsers(*Empty, Movie_GetUsersServer) error
+	CreateUser(Movie_CreateUserServer) error
 	mustEmbedUnimplementedMovieServer()
 }
 
@@ -176,6 +212,9 @@ func (UnimplementedMovieServer) DeleteDirector(context.Context, *DirectorId) (*S
 }
 func (UnimplementedMovieServer) GetUsers(*Empty, Movie_GetUsersServer) error {
 	return status.Errorf(codes.Unimplemented, "method GetUsers not implemented")
+}
+func (UnimplementedMovieServer) CreateUser(Movie_CreateUserServer) error {
+	return status.Errorf(codes.Unimplemented, "method CreateUser not implemented")
 }
 func (UnimplementedMovieServer) mustEmbedUnimplementedMovieServer() {}
 
@@ -304,6 +343,32 @@ func (x *movieGetUsersServer) Send(m *User) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _Movie_CreateUser_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(MovieServer).CreateUser(&movieCreateUserServer{stream})
+}
+
+type Movie_CreateUserServer interface {
+	SendAndClose(*TotalUserResponse) error
+	Recv() (*CreateUserRequest, error)
+	grpc.ServerStream
+}
+
+type movieCreateUserServer struct {
+	grpc.ServerStream
+}
+
+func (x *movieCreateUserServer) SendAndClose(m *TotalUserResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *movieCreateUserServer) Recv() (*CreateUserRequest, error) {
+	m := new(CreateUserRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // Movie_ServiceDesc is the grpc.ServiceDesc for Movie service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -338,6 +403,11 @@ var Movie_ServiceDesc = grpc.ServiceDesc{
 			StreamName:    "GetUsers",
 			Handler:       _Movie_GetUsers_Handler,
 			ServerStreams: true,
+		},
+		{
+			StreamName:    "CreateUser",
+			Handler:       _Movie_CreateUser_Handler,
+			ClientStreams: true,
 		},
 	},
 	Metadata: "movie_service.proto",

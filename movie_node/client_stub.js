@@ -1,6 +1,6 @@
 const grpc = require('@grpc/grpc-js')
 const protoLoader = require('@grpc/proto-loader');
-const { configProto, getDifferenceTime } = require('./helper');
+const { configProto, getDifferenceTime, getFakerUser } = require('./helper');
 
 const PROTO_PATH_FILE = './proto/movie_service.proto'
 const PORT = 8081
@@ -19,8 +19,8 @@ function runClient() {
   //   }
   // })
 
-  readUserStream(clientStub)
-
+  // readUserStream(clientStub)
+  createUserStream(clientStub)
 }
 
 runClient();
@@ -40,4 +40,24 @@ function readUserStream(client) {
     console.log('List user selesai dikirim')
     console.log(`Last Date : ${lastDate}, Current Date: ${currentDate}`)
   })
+}
+
+function createUserStream(client) {
+  let call = client.CreateUser((err, response) => {
+    if(err) {
+      console.log(err);
+      return err
+    }
+
+    console.log(response)
+  })
+
+  const maxUser = 5
+  let users = getFakerUser(maxUser);
+
+  for (let i = 0; i < maxUser; i++) {
+    call.write(users[i])
+  }
+
+  call.end()  
 }

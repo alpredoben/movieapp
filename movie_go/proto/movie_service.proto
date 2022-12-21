@@ -24,6 +24,7 @@ service Movie {
   
   // User Method
   rpc GetUsers(Empty) returns (stream User);
+  rpc CreateUser(stream CreateUserRequest) returns (TotalUserResponse);
 }
 
 message Empty {}

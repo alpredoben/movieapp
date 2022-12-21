@@ -117,7 +117,7 @@ function main() {
         call.write(element)
       }
       call.end()
-    }   
+    },  
   })
 
   server.bindAsync(`0.0.0.0:${PORT}`, grpc.ServerCredentials.createInsecure(), () => {
