@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package movieapp;
+
+// golang option package
+option go_package = "movieapp/pb";
+
+// java option package
+option java_multiple_files = true;
+option java_package = "io.grpc.app.movieapp";
+option java_outer_classname = "MovieAppProto";
+option objc_class_prefix = "MAP";
+
+
+message User {
+  string id = 1;
+  string fullname = 2;
+  string email = 3;
+  string country = 4;
+}
+

@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package movieapp;
+
+// golang option package
+option go_package = "movieapp/pb";
+
+// java option package
+option java_multiple_files = true;
+option java_package = "io.grpc.app.movieapp";
+option java_outer_classname = "MovieAppProto";
+option objc_class_prefix = "MAP";
+
+import "google/protobuf/timestamp.proto";
+
+message DirectorId {
+  string id = 1;
+}
+
+message DirectorName {
+  string director_name = 1;
+}
+
+message DirectorSub {
+  string id = 1;
+  string director_name = 2;
+}
+
+
+message Director {
+  DirectorSub director = 1;
+  google.protobuf.Timestamp created_at = 2;
+  google.protobuf.Timestamp updated_at = 3;  
+}
+

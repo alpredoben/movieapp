@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package movieapp;
+
+// golang option package
+option go_package = "movieapp/pb";
+
+// java option package
+option java_multiple_files = true;
+option java_package = "io.grpc.app.movieapp";
+option java_outer_classname = "MovieAppProto";
+option objc_class_prefix = "MAP";
+
+import "google/protobuf/timestamp.proto";
+
+import "director_msg.proto";
+import "user_msg.proto";
+
+service Movie {
+  // Director Method 
+  rpc GetDirectors (Empty) returns (stream Director);
+  rpc CreateDirector (DirectorName) returns (DirectorId);
+  rpc UpdateDirector (DirectorSub) returns (Status);
+  rpc FindDirector (DirectorId) returns (Director);
+  rpc DeleteDirector(DirectorId) returns (Status);
+
+  // Method User
+  rpc GetUsers (Empty) returns (stream User);
+}
+
+message Empty {}
+message Status {
+  uint32 value = 1;
+  string message = 2;
+}
+
